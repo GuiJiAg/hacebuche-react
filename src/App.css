@@ -1,33 +1,59 @@
-.App {
-  text-align: center;
+.bloc-logo {
+  position: absolute;
+  margin-left: 3px;
+  width: 130px;
+  height: 45px;
+  float: left;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
+.bloc-logo .logo-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 130px;
+  height: 45px;
+  background-size: 130px;
+  background-image: url("./images/hacebuche-logo2.jpg");
+  text-indent: -9999px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.grey {
+  letter-spacing:4px; 
+  background-color: #eeeeee;
 }
 
-.App-link {
-  color: #61dafb;
+.w3-bar-item {
+  font-size: 15px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+div .w3-right, nav, header p {
+  font-family: 'Courgette', cursive;
+}
+
+.close-nav {
+  border-bottom-style: solid;
+  border-bottom-color:darkgrey;
+}
+
+nav span {
+  color: red;
+  font-family: 'Arvo', serif;
+}
+
+.responsive-nav-hidden {
+  display: none;
+}
+
+.responsive-nav-enabled {
+  display: block;
+  top: 0;
+}
+
+.w3-hover-opacity {
+  cursor: pointer;
+}
+
+i {
+  margin: 5px;
 }
