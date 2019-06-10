@@ -1,0 +1,106 @@
+header {
+    max-width: 100%;
+    min-width: 330px;
+}
+
+header img {
+    height: 500;
+}
+
+h1 {
+    font-family: 'Courgette', cursive;
+}
+
+button {
+    margin-bottom: 15px;
+}
+
+.card-header {
+    background-color: #eeeeee;
+}
+
+.border {
+    border-style: solid;
+    border-width: 2px;
+    border-color: #7ed3d6;
+}
+
+input[type=text], input[type=date], select, textarea {
+    width: 60%;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+}
+
+select {
+    -webkit-appearance: button;
+    -webkit-border-radius: 2px;
+    -webkit-padding-end: 20px;
+    -webkit-padding-start: 2px;
+    -webkit-user-select: none;
+    background-image: url(http://i62.tinypic.com/15xvbd5.png), -webkit-linear-gradient(#FAFAFA, #F4F4F4 40%, #E5E5E5);
+    background-position: 97% center;
+    background-repeat: no-repeat;
+    border-radius: 7px;
+    font-size: inherit;
+    overflow: hidden;
+    padding: 7px 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.radioLabel {
+    margin-left: 5px;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #449fa3;
+}
+
+textarea {
+    height:200px;
+    border-radius: 7px;
+}
+
+button {
+    background-color: #7ed3d6;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    border: none;
+    display: inline-block;
+    padding: 8px 16px;
+    vertical-align: middle;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    text-align: center;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+button:hover {
+    color: #000 !important;
+    background-color: #449fa3 !important;
+}
+
+.bot {
+    margin-top: 64px !important;
+}
+
+.bot .iframeBot {
+    width: 100%;
+    height: 430;
+    border: solid; 
+    border-width: 1px;
+}
+
+@media screen and (max-width: 1230px) {
+    .bot .iframeBot {
+        border: none;
+    }
+}
+
+@media screen and (max-width: 780px) {
+    textarea {
+        width: 100%;
+    }
+}

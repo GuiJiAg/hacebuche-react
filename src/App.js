@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import './App.css';
 
 import Home from './components/home/Home';
+import Reserve from './components/reserve/Reserve';
 
 class Navbar extends React.Component {
   render() {
@@ -10,14 +11,13 @@ class Navbar extends React.Component {
       <div className="w3-top">
         <div className="grey w3-bar w3-padding w3-card">
           <div className="bloc-logo">
-            <a className="logo-mask" onClick={() => this.props.goTop()}>Home</a>
+            <Link to="/" className="logo-mask" onClick={() => this.props.goTop()}>Home</Link>
           </div>
           <div className="w3-right w3-hide-medium w3-hide-small">
-            <a className="w3-bar-item w3-button" onClick={() => this.props.goTop()}>Nuestra Carta</a>
-            <a className="w3-bar-item w3-button" onClick={() => this.props.goTop()}>Nuestros Vinos</a>
-            <a className="w3-bar-item w3-button" onClick={() => this.props.goTop()}>Reserva</a>
+            <Link to="/menu" className="w3-bar-item w3-button" onClick={() => this.props.goTop()}>Nuestra Carta</Link>
+            <Link to="/wines" className="w3-bar-item w3-button" onClick={() => this.props.goTop()}>Nuestros Vinos</Link>
+            <Link to="/reserve" className="w3-bar-item w3-button" onClick={() => this.props.goTop()}>Reserva</Link>
           </div>
-
           <a 
             href="javascript:void(0)" 
             className="w3-bar-item w3-button w3-right w3-hide-large" 
@@ -44,9 +44,9 @@ class CollapseNavbar extends React.Component {
             Cerrar <span>X</span>
           </a>
         </div> 
-        <a className="w3-bar-item w3-button" onClick={() => this.props.navClose()}>Nuestra Carta</a>
-        <a className="w3-bar-item w3-button" onClick={() => this.props.navClose()}>Nuestros Vinos</a>
-        <a className="w3-bar-item w3-button" onClick={() => this.props.navClose()}>Reserva</a>
+        <Link to="/menu" className="w3-bar-item w3-button" onClick={() => {this.props.goTop(); this.props.navClose()}}>Nuestra Carta</Link>
+        <Link to="/wines" className="w3-bar-item w3-button" onClick={() => {this.props.goTop(); this.props.navClose()}}>Nuestros Vinos</Link>
+        <Link to="/reserve" className="w3-bar-item w3-button" onClick={() => {this.props.goTop(); this.props.navClose()}}>Reserva</Link>
       </nav>
     );
   }
@@ -119,17 +119,17 @@ class App extends React.Component {
     return (
       <div>
         <Router>
-          <div>
-            <Navbar
+          <Navbar
+          goTop={() => this.goTop()}
+          navOpen={() => this.navOpen()}
+          />
+          <CollapseNavbar
             goTop={() => this.goTop()}
-            navOpen={() => this.navOpen()}
-            />
-            <CollapseNavbar
-              navClass={this.state.navClassName}
-              navClose={() => this.navClose()}
-            />
-            <Route exact path="/" component={Home} />
-          </div>
+            navClass={this.state.navClassName}
+            navClose={() => this.navClose()}
+          />
+          <Route exact path="/" component={Home} />
+          <Route path="/reserve" component={Reserve} />
         </Router>
         <Footer />
       </div>
