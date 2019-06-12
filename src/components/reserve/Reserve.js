@@ -3,6 +3,20 @@ import reservationImg from '../../images/reservation.jpg';
 import axios from 'axios';
 import './Reserve.css';
 
+const nameErrorMessage = 'El nombre es obligatorio y solo puede tener caracteres alfabéticos';
+const emailErrorMessage = 'El correo debe estar en un formato correcto '+
+  '(ejemplos: ejemplo@gmail.com, ejemplo.2@correo.es,...)';
+const phoneErrorMessage = 'Debe introducir un número de teléfono correcto y sin espacios entre los números '+
+  '(ejemplos: 987654321, 654321987,...)';
+const reserveDateErrorMessage = 'Debe introducir una fecha correcta. '+
+  'La reserva debe de hacerse con un mínimo de un día de antelación';
+const reserveHourErrorMessage = 'Debe introducir una hora correcta. '+
+  'Si desea otra hora, puede especificarlo en \"Observaciones\"';
+const numberDinersErrorMessage = 'Debe introducir un número correcto de comensales '+
+  '(ejemplos: 2, 3, 4, 12,...). Para un número mayor de '+
+  '20 personas debe ponerse en contacto directo con el restaurante';
+const preferedPlaceErrorMessage = 'Debe eligir una zona preferente';
+
 function Header() {
   return (
     <header className="">
@@ -85,6 +99,7 @@ class CardForm extends React.Component {
           <option value="22:30">22:30</option>
           <option value="23:00">23:00</option>
         </select>
+        <br />
         <br />
         <p>  
           <label>¿Cuántas personas?</label>
@@ -263,42 +278,163 @@ class ModalCorrect extends React.Component {
 class Reserve extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      name:'',
-      email:'',
-      phone:'',
-      reserveDate:'',
-      reserveHour:'13:30',
-      numberDiners:'',
-      preferedPlace:'',
-      observations:''
+      name: localStorage.nameHacebucheInput ? localStorage.nameHacebucheInput : '',
+      email: localStorage.emailHacebucheInput ? localStorage.emailHacebucheInput : '',
+      phone: localStorage.phoneHacebucheInput ? localStorage.phoneHacebucheInput : '',
+      reserveDate: localStorage.reserveDateHacebucheInput ? localStorage.reserveDateHacebucheInput : '',
+      reserveHour: localStorage.reserveHourHacebucheInput ? localStorage.reserveHourHacebucheInput : '13:30',
+      numberDiners: localStorage.numberDinersHacebucheInput ? localStorage.numberDinersHacebucheInput : '', 
+      preferedPlace: localStorage.preferedPlaceHacebucheInput ? localStorage.preferedPlaceHacebucheInput : 'Terraza',
+      observations: localStorage.observationsHacebucheInput ? localStorage.observationsHacebucheInput : '',
+      validatedData: true,
+      nameError: false,
+      emailError: false,
+      phoneError: false,
+      reserveDateError: false,
+      reserveHourError: false,
+      numberDinersError: false,
+      preferedPlaceError: false
     };
 
+    this.validateName = this.validateName.bind(this);
+    this.validateEmail= this.validateEmail.bind(this);
+    this.validatePhone = this.validatePhone.bind(this);
+    this.validateReserveDate = this.validateReserveDate.bind(this);
+    this.validateReserveHour = this.validateReserveHour.bind(this);
+    this.validateNumberDiners = this.validateNumberDiners.bind(this);
+    this.validatePreferedPlace = this.validatePreferedPlace.bind(this);
+    this.keepInputValues = this.keepInputValues.bind(this);
+    this.transformDate = this.transformDate.bind(this);
+    this.sendMail = this.sendMail.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
   }
 
-  handleChange(event) {
-    const input = event.target.name;
-    let value = '';
-    
-    if (input === 'phone' || input === 'numberDiners') {
-      value = parseInt(event.target.value);
-    }
-    else {
-      value = event.target.value;
-    }
+  validateName() {
+    let pattern = /^[A-Ñ-Za-ñ-záéíóúÁÉÍÓÚ]+\s?([A-Ñ-Za-ñ-záéíóúÁÉÍÓÚ]+\s?)*$/;
 
-    this.setState({
-      [input]: value
+    return ({
+      validated: pattern.test(this.state.name),
+      errorMessage: nameErrorMessage
     });
   }
 
-  handleClick() {
-    const url = 'https://hacebuche-api.herokuapp.com/api/mail'
-    let requestHeaders = {
-      'Content-Type':'application/json '
-    };
+  validateEmail() {
+    let pattern = /^.+@.+\.[a-z]+$/;
+
+    return ({
+      valedated: pattern.test(this.state.email),
+      errorMessage: emailErrorMessage
+    });
+  }
+
+  validatePhone() {
+    let pattern = /^\d{9}$/;
+
+    return ({
+      validated: pattern.test(parseInt(this.state.phone)),
+      errorMessage: phoneErrorMessage
+    });
+  }
+
+  validateReserveDate() {
+    if (this.state.reserveDate != '') {
+      let currentDate = new Date();
+      let reserveDateToValidated = new Date(this.state.reserveDate);
+
+      return ({
+        validated: reserveDateToValidated > currentDate,
+        errorMessage: reserveDateErrorMessage
+      });
+    }
+    
+    return ({
+      validated: false,
+      errorMessage: reserveDateErrorMessage
+    });
+  }
+
+  validateReserveHour() {
+    let pattern = /^\d{2}:\d{2}$/;
+
+    return ({
+      validated: pattern.test(this.state.reserveHour),
+      errorMessage: reserveHourErrorMessage
+    });
+  }
+
+  validateNumberDiners() {
+    let pattern = /^[1-9]\d?$/;
+    let numberDinersToValidated = parseInt(this.state.numberDiners);
+    let validated = true;
+
+    if (pattern.test(numberDinersToValidated)) {
+      if (numberDinersToValidated < 1 || numberDinersToValidated > 20) {
+        validated = false;
+      }
+      return ({
+        validated: validated,
+        errorMessage: numberDinersErrorMessage
+      });
+    }
+    
+    return ({
+      validated: false,
+      errorMessage: numberDinersErrorMessage
+    });
+  }
+
+  validatePreferedPlace() {
+    return ({
+      validated: (this.state.preferedPlace != 'Terraza' || this.state.preferedPlace != 'Local'),
+      errorMessage: preferedPlaceErrorMessage
+    });
+  }
+
+  validateData() {
+    return ([
+      ['nameError', this.validateName()],
+      ['emailError', this.validateEmail()],
+      ['phoneError', this.validatePhone()],
+      ['reserveDateError', this.validateReserveDate()],
+      ['reserveHourError', this.validateReserveHour()],
+      ['numberDinersError', this.validateNumberDiners()],
+      ['preferedPlaceError', this.validatePreferedPlace()]
+    ]);
+  }
+
+  keepInputValues() {
+    localStorage.nameHacebucheInput = this.state.name;
+    localStorage.emailHacebucheInput = this.state.email;
+    localStorage.phoneHacebucheInput = this.state.phone;
+    localStorage.reserveDateHacebucheInput = this.state.reserveDate;
+    localStorage.reserveHourHacebucheInput = this.state.reserveHour;
+    localStorage.numberDinersHacebucheInput = this.state.numberDiners;
+    localStorage.preferedPlaceHacebucheInput = this.state.preferedPlace;
+    localStorage.observationsHacebucheInput = this.state.observations;
+  }
+
+  transformDate() {
+    const dateMailFormat = new Date(this.state.reserveDate);
+    let year = dateMailFormat.getFullYear();
+    let month = dateMailFormat.getMonth() + 1;
+    let day = dateMailFormat.getDate();
+
+    if (month<10) {
+      month = `0${month}`;
+    }
+    if (day<10) {
+      day = `0${day}`;
+    }
+
+    this.setState({ reserveDate: `${day}/${month}/${year}` });
+  }
+
+  sendMail() {
+    const url = 'https://hacebuche-api.herokuapp.com/api/mail';
+    let requestHeaders = { 'Content-Type':'application/json ' };
 
     axios.post(url, this.state, { headers: requestHeaders })
       .then(function (response) {
@@ -308,6 +444,33 @@ class Reserve extends React.Component {
         console.log(error);
       });
   }
+
+  handleChange(event) {
+    const input = event.target.name;
+    let value = event.target.value;
+
+    this.setState({
+      [input]: value
+    });
+  }
+
+  handleClick() {
+    let validatedInputs = new Map(this.validateData());
+
+    for (let [inputNameError, validatedInput] of validatedInputs) {
+      this.setState({
+        [inputNameError]: !validatedInput.validated ? validatedInput.errorMessage : false,
+        validatedData: false
+      });
+    }
+
+    if (this.state.validatedData) {
+      this.keepInputValues();
+      this.transformDate();
+      this.sendMail();
+    }
+  }
+
   render() {
     return (
       <div>
