@@ -283,12 +283,11 @@ class Reserve extends React.Component {
       name: localStorage.nameHacebucheInput ? localStorage.nameHacebucheInput : '',
       email: localStorage.emailHacebucheInput ? localStorage.emailHacebucheInput : '',
       phone: localStorage.phoneHacebucheInput ? localStorage.phoneHacebucheInput : '',
-      reserveDate: localStorage.reserveDateHacebucheInput ? localStorage.reserveDateHacebucheInput : '',
+      reserveDate: '',
       reserveHour: localStorage.reserveHourHacebucheInput ? localStorage.reserveHourHacebucheInput : '13:30',
       numberDiners: localStorage.numberDinersHacebucheInput ? localStorage.numberDinersHacebucheInput : '', 
       preferedPlace: localStorage.preferedPlaceHacebucheInput ? localStorage.preferedPlaceHacebucheInput : 'Terraza',
       observations: localStorage.observationsHacebucheInput ? localStorage.observationsHacebucheInput : '',
-      validatedData: true,
       nameError: false,
       emailError: false,
       phoneError: false,
@@ -308,6 +307,7 @@ class Reserve extends React.Component {
     this.keepInputValues = this.keepInputValues.bind(this);
     this.transformDate = this.transformDate.bind(this);
     this.sendMail = this.sendMail.bind(this);
+    this.cleanInputs = this.cleanInputs.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
   }
@@ -325,7 +325,7 @@ class Reserve extends React.Component {
     let pattern = /^.+@.+\.[a-z]+$/;
 
     return ({
-      valedated: pattern.test(this.state.email),
+      validated: pattern.test(this.state.email),
       errorMessage: emailErrorMessage
     });
   }
@@ -374,6 +374,12 @@ class Reserve extends React.Component {
       if (numberDinersToValidated < 1 || numberDinersToValidated > 20) {
         validated = false;
       }
+      else {
+        this.setState({ 
+          numberDiners: numberDinersToValidated
+        }, () => { localStorage.numberDinersHacebucheInput = this.state.numberDiners; });
+      }
+
       return ({
         validated: validated,
         errorMessage: numberDinersErrorMessage
@@ -409,18 +415,16 @@ class Reserve extends React.Component {
     localStorage.nameHacebucheInput = this.state.name;
     localStorage.emailHacebucheInput = this.state.email;
     localStorage.phoneHacebucheInput = this.state.phone;
-    localStorage.reserveDateHacebucheInput = this.state.reserveDate;
     localStorage.reserveHourHacebucheInput = this.state.reserveHour;
-    localStorage.numberDinersHacebucheInput = this.state.numberDiners;
     localStorage.preferedPlaceHacebucheInput = this.state.preferedPlace;
     localStorage.observationsHacebucheInput = this.state.observations;
   }
 
   transformDate() {
-    const dateMailFormat = new Date(this.state.reserveDate);
-    let year = dateMailFormat.getFullYear();
-    let month = dateMailFormat.getMonth() + 1;
-    let day = dateMailFormat.getDate();
+    const reserveDateInput = new Date(this.state.reserveDate);
+    let year = reserveDateInput.getFullYear();
+    let month = reserveDateInput.getMonth() + 1;
+    let day = reserveDateInput.getDate();
 
     if (month<10) {
       month = `0${month}`;
@@ -429,7 +433,22 @@ class Reserve extends React.Component {
       day = `0${day}`;
     }
 
-    this.setState({ reserveDate: `${day}/${month}/${year}` });
+    let reserveDateNewFormat = `${day}/${month}/${year}`;
+
+    this.setState({ reserveDate: reserveDateNewFormat }, () => { this.sendMail(); });
+  }
+
+  cleanInputs() {
+    this.setState({
+      name: '',
+      email: '',
+      phone: '',
+      reserveDate: '',
+      reserveHour: '13:30',
+      numberDiners: '',
+      preferedPlace: 'Terraza',
+      observations: ''
+    });
   }
 
   sendMail() {
@@ -443,6 +462,8 @@ class Reserve extends React.Component {
       .catch(function (error) {
         console.log(error);
       });
+    
+    this.cleanInputs();
   }
 
   handleChange(event) {
@@ -456,18 +477,25 @@ class Reserve extends React.Component {
 
   handleClick() {
     let validatedInputs = new Map(this.validateData());
+    let validatedData = true;
 
     for (let [inputNameError, validatedInput] of validatedInputs) {
-      this.setState({
-        [inputNameError]: !validatedInput.validated ? validatedInput.errorMessage : false,
-        validatedData: false
-      });
+      if (!validatedInput.validated) {
+        this.setState({
+          [inputNameError]: validatedInput.errorMessage
+        });    
+        validatedData = false;
+      }
+      else {
+        this.setState({
+          [inputNameError]: false
+        });
+      }
     }
 
-    if (this.state.validatedData) {
+    if (validatedData) {
       this.keepInputValues();
       this.transformDate();
-      this.sendMail();
     }
   }
 
